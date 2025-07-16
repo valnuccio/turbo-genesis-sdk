@@ -57,3 +57,17 @@ pub fn is_sound_playing(key_ptr: *const u8, key_len: u32) -> u32 {
         is_sound_playing(key_ptr, key_len)
     }
 }
+
+#[cfg(not(target_family = "wasm"))]
+pub fn set_panning(_key_ptr: *const u8, _key_len: u32, _panning: f32) {}
+
+#[cfg(target_family = "wasm")]
+pub fn set_panning(key_ptr: *const u8, key_len: u32, panning: f32) {
+    unsafe {
+        #[link(wasm_import_module = "@turbo_genesis/audio")]
+        extern "C" {
+            fn set_panning(key_ptr: *const u8, key_len: u32, panning: f32);
+        }
+        set_panning(key_ptr, key_len, panning);
+    }
+}
